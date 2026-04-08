@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biologica — The Living Atlas</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Nunito:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:       #faf8f4;
+  --card:     #ffffff;
+  --surface:  #f3f0ea;
+  --border:   #e8e3d8;
+  --text:     #2d2d28;
+  --soft:     #7a7a6e;
+  --sage:     #5a8a6a;
+  --sage-l:   #eaf3ed;
+  --sage-m:   #c8dece;
+  --sage-d:   #3d6b50;
+  --warm:     #c4874a;
+  --warm-l:   #fdf0e3;
+  --lavender: #8b7fa8;
+  --lav-l:    #f0edf7;
+  --blush:    #c4736a;
+  --blush-l:  #fcecea;
+  --sky:      #5b8fa8;
+  --sky-l:    #eaf3f8;
+  --gold:     #b5941a;
+  --gold-l:   #fdf5e0;
+  --teal:     #4a8f8a;
+  --teal-l:   #e6f4f3;
+  --rose:     #a8607a;
+  --rose-l:   #f7edf2;
+  --shadow:   0 2px 16px rgba(0,0,0,0.06);
+  --shadow-h: 0 6px 32px rgba(0,0,0,0.10);
+  --r:        16px;
+  --r-sm:     10px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+/* ─── HEADER ──────────────────────────────────────── */
+header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 1px 12px rgba(0,0,0,0.05);
+}
+
+.brand {
+  font-family: 'Lora', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--sage-d);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-leaf {
+  width: 30px; height: 30px;
+  background: var(--sage-l);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+
+.brand em { font-style: italic; color: var(--sage); }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-clock {
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  color: var(--soft);
+  background: var(--surface);
+  padding: 5px 14px;
+  border-radius: 20px;
+}
+
+.fact-count-badge {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sage-d);
+  background: var(--sage-l);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* ─── TAB NAV ─────────────────────────────────────── */
+.tab-nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  height: 52px;
+  position: sticky;
+  top: 64px;
+  z-index: 190;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--soft);
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.tab-btn:hover { background: var(--sage-l); color: var(--sage-d); }
+.tab-btn.active { background: var(--sage); color: #fff; }
+
+/* progress */
+.progress-bar { height: 3px; background: var(--surface); position: sticky; top: 116px; z-index: 180; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--sage), var(--warm)); width: 0%; transition: width .15s; border-radius: 0 2px 2px 0; }
+
+/* ─── PAGE SYSTEM ─────────────────────────────────── */
+.page { display: none; animation: softIn .28s ease; }
+.page.active { display: block; }
+@keyframes softIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ─── SHARED LAYOUT ───────────────────────────────── */
+.inner { max-width: 1120px; margin: 0 auto; padding: 0 40px; }
+
+.section-hdr {
+  padding: 40px 40px 20px;
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.section-hdr h2 { font-family: 'Lora', serif; font-size: 1.85rem; font-weight: 600; color: var(--text); }
+
+.section-hdr .section-desc {
+  width: 100%;
+  font-size: 0.93rem;
+  color: var(--soft);
+  font-weight: 300;
+  margin-top: 4px;
+  max-width: 640px;
+}
+
+.pill {
+  background: var(--sage-l);
+  color: var(--sage-d);
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+/* ─── CARD GRID ───────────────────────────────────── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 0 40px 40px;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.card-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+.fact-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 26px 26px;
+  box-shadow: var(--shadow);
+  transition: transform .2s, box-shadow .2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.fact-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--r) var(--r) 0 0;
+}
+
+.fact-card.c-sage::before   { background: linear-gradient(90deg, #5a8a6a, #9dcbac); }
+.fact-card.c-warm::before   { background: linear-gradient(90deg, #c4874a, #e0b07a); }
+.fact-card.c-lav::before    { background: linear-gradient(90deg, #8b7fa8, #b9afd1); }
+.fact-card.c-blush::before  { background: linear-gradient(90deg, #c4736a, #d9998e); }
+.fact-card.c-sky::before    { background: linear-gradient(90deg, #5b8fa8, #8bb8cf); }
+.fact-card.c-gold::before   { background: linear-gradient(90deg, #b5941a, #d4b84a); }
+.fact-card.c-teal::before   { background: linear-gradient(90deg, #4a8f8a, #7abfba); }
+.fact-card.c-rose::before   { background: linear-gradient(90deg, #a8607a, #cc8fa5); }
+
+.fact-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-h); }
+
+.fc-tag {
+  display: inline-block;
+  font-family: 'Nunito', sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.c-sage  .fc-tag { background: var(--sage-l);  color: var(--sage-d); }
+.c-warm  .fc-tag { background: var(--warm-l);  color: var(--warm); }
+.c-lav   .fc-tag { background: var(--lav-l);   color: var(--lavender); }
+.c-blush .fc-tag { background: var(--blush-l); color: var(--blush); }
+.c-sky   .fc-tag { background: var(--sky-l);   color: var(--sky); }
+.c-gold  .fc-tag { background: var(--gold-l);  color: var(--gold); }
+.c-teal  .fc-tag { background: var(--teal-l);  color: var(--teal); }
+.c-rose  .fc-tag { background: var(--rose-l);  color: var(--rose); }
+
+.fc-title {
+  font-family: 'Lora', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.fc-body {
+  font-size: 0.86rem;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--soft);
+}
+
+.fc-note {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface);
+  font-family: 'Nunito', sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+
+/* ─── CALLOUT BAND ────────────────────────────────── */
+.callout {
+  max-width: 1040px;
+  margin: 0 auto 40px;
+  padding: 0 40px;
+}
+
+.callout-inner {
+  background: linear-gradient(135deg, var(--sage-d) 0%, #4a7a5c 100%);
+  border-radius: 20px;
+  padding: 44px 52px;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 44px;
+  align-items: center;
+  box-shadow: 0 8px 40px rgba(61,107,80,.22);
+}
+
+.callout-num { font-family: 'Lora', serif; font-size: 3.6rem; font-weight: 600; color: #a8d5b5; line-height: 1; }
+.callout-unit { font-size: 1.5rem; color: rgba(255,255,255,.4); }
+.callout-text h3 { font-family: 'Lora', serif; font-size: 1.45rem; font-weight: 600; color: #fff; margin-bottom: 10px; line-height: 1.3; }
+.callout-text p { font-size: 0.9rem; font-weight: 300; line-height: 1.85; color: rgba(255,255,255,.68); max-width: 520px; }
+.callout-note { margin-top: 12px; font-family: 'Nunito', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; color: rgba(255,255,255,.32); border-left: 2px solid #a8d5b5; padding-left: 10px; }
+
+/* ─── STAT STRIP ──────────────────────────────────── */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  padding: 0 40px 36px;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+  transition: transform .2s;
+}
+
+.stat-card:hover { transform: translateY(-2px); }
+.stat-num { font-family: 'Lora', serif; font-size: 2rem; font-weight: 600; color: var(--sage); line-height: 1; margin-bottom: 5px; }
+.stat-label { font-size: 11px; font-weight: 600; color: var(--soft); text-transform: uppercase; letter-spacing: 0.4px; }
+
+/* ─── TICKER ──────────────────────────────────────── */
+.ticker-wrap { background: linear-gradient(135deg, var(--sage-d), var(--sage)); overflow: hidden; white-space: nowrap; height: 36px; display: flex; align-items: center; }
+.ticker-inner { display: inline-block; animation: ticker 65s linear infinite; font-family: 'Nunito', sans-serif; font-size: 10.5px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,.85); padding-left: 100%; }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ─── HERO ────────────────────────────────────────── */
+.hero {
+  padding: 52px 40px 44px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.hero-eyebrow { display: inline-block; background: var(--sage-l); color: var(--sage-d); font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 18px; }
+
+.hero-h1 { font-family: 'Lora', serif; font-size: clamp(2.1rem, 3.8vw, 3.2rem); font-weight: 600; line-height: 1.15; letter-spacing: -.4px; color: var(--text); margin-bottom: 18px; }
+.hero-h1 em { font-style: italic; color: var(--sage); }
+
+.hero-body { font-size: 1rem; font-weight: 300; color: var(--soft); line-height: 1.8; margin-bottom: 28px; max-width: 430px; }
+
+.chapter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.ch-btn { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--r); padding: 16px 18px; cursor: pointer; text-align: left; transition: all .2s ease; box-shadow: var(--shadow); }
+.ch-btn:hover { border-color: var(--sage-m); transform: translateY(-2px); box-shadow: var(--shadow-h); }
+.ch-btn-icon { font-size: 1.4rem; margin-bottom: 6px; display: block; }
+.ch-btn-title { font-family: 'Lora', serif; font-size: 0.92rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.ch-btn-sub { font-size: 10.5px; color: var(--soft); font-weight: 400; }
+
+.hero-cell-card { background: var(--card); border-radius: 24px; padding: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: var(--shadow); border: 1.5px solid var(--border); }
+.cell-label { margin-top: 18px; font-family: 'Nunito', sans-serif; font-size: 10.5px; letter-spacing: .8px; color: var(--soft); text-transform: uppercase; text-align: center; }
+.cell-label strong { display: block; color: var(--sage); font-size: 11.5px; font-weight: 700; margin-bottom: 3px; }
+
+/* ─── TIMELINE ────────────────────────────────────── */
+.timeline { padding: 0 40px 48px; max-width: 1120px; margin: 0 auto; }
+.tl-item { display: grid; grid-template-columns: 110px 36px 1fr; gap: 0 22px; }
+.tl-date-col { padding: 26px 0; text-align: right; }
+.tl-date { font-family: 'Lora', serif; font-size: 0.92rem; font-weight: 600; color: var(--sage); }
+.tl-era { font-family: 'Nunito', sans-serif; font-size: 9.5px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .3px; margin-top: 3px; }
+.tl-line { display: flex; flex-direction: column; align-items: center; }
+.tl-dot { width: 13px; height: 13px; border-radius: 50%; background: var(--sage); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--sage-m); flex-shrink: 0; margin-top: 30px; transition: transform .2s; }
+.tl-item:hover .tl-dot { transform: scale(1.35); }
+.tl-connector { flex: 1; width: 2px; background: var(--border); border-radius: 1px; }
+.tl-item:last-child .tl-connector { display: none; }
+.tl-card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--r); padding: 22px 26px; margin: 14px 0; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s; }
+.tl-item:hover .tl-card { transform: translateX(4px); box-shadow: var(--shadow-h); }
+.tl-card h4 { font-family: 'Lora', serif; font-size: 1.05rem; font-weight: 600; color: var(--text); margin-bottom: 7px; line-height: 1.3; }
+.tl-card p { font-size: 0.86rem; font-weight: 300; color: var(--soft); line-height: 1.78; max-width: 580px; }
+
+/* ─── QUIZ ────────────────────────────────────────── */
+.quiz-wrap { padding: 40px; max-width: 1120px; margin: 0 auto; }
+.quiz-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 20px; padding: 36px 40px; box-shadow: var(--shadow); max-width: 680px; }
+.quiz-top { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+.quiz-counter-lbl { font-family: 'Nunito', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .4px; }
+.quiz-pips { display: flex; gap: 5px; }
+.qpip { width: 26px; height: 4px; border-radius: 3px; background: var(--border); transition: background .3s; }
+.qpip.done   { background: var(--sage); }
+.qpip.active { background: var(--warm); }
+.quiz-score-tag { margin-left: auto; font-family: 'Nunito', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--sage-d); background: var(--sage-l); padding: 4px 12px; border-radius: 20px; }
+.quiz-q { font-family: 'Lora', serif; font-size: 1.45rem; font-style: italic; color: var(--text); line-height: 1.35; margin-bottom: 24px; padding: 0 0 0 16px; border-left: 3px solid var(--sage-m); }
+.quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 18px; }
+.q-btn { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-sm); padding: 13px 16px; font-family: 'Nunito Sans', sans-serif; font-size: 0.9rem; color: var(--text); cursor: pointer; text-align: left; display: flex; align-items: center; gap: 9px; transition: all .2s ease; }
+.q-ltr { font-family: 'Lora', serif; font-size: 0.85rem; font-weight: 600; color: var(--soft); min-width: 16px; transition: color .2s; }
+.q-btn:hover { background: var(--sage-l); border-color: var(--sage-m); }
+.q-btn:hover .q-ltr { color: var(--sage-d); }
+.q-btn.correct { background: var(--sage-l); border-color: var(--sage); }
+.q-btn.correct .q-ltr { color: var(--sage-d); }
+.q-btn.wrong { background: var(--blush-l); border-color: var(--blush); }
+.q-btn.wrong .q-ltr { color: var(--blush); }
+.q-btn:disabled { cursor: default; }
+.quiz-expl { background: var(--sage-l); border-radius: var(--r-sm); border-left: 3px solid var(--sage); padding: 14px 18px; font-size: 0.86rem; font-weight: 300; line-height: 1.8; color: var(--text); display: none; margin-bottom: 14px; }
+.quiz-expl.show { display: block; }
+.quiz-expl strong { color: var(--sage-d); font-weight: 600; }
+.quiz-next { display: none; background: var(--sage); color: #fff; border: none; padding: 11px 26px; border-radius: 20px; font-family: 'Nunito', sans-serif; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: background .2s, transform .15s; }
+.quiz-next.show { display: inline-block; }
+.quiz-next:hover { background: var(--sage-d); transform: translateY(-1px); }
+
+/* ─── SYSTEMS ─────────────────────────────────────── */
+.sys-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 0 40px 48px; max-width: 1120px; margin: 0 auto; }
+.sys-card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--r); padding: 32px 28px; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s; position: relative; overflow: hidden; }
+.sys-card::after { content: attr(data-emoji); position: absolute; bottom: -10px; right: -6px; font-size: 5rem; opacity: .07; pointer-events: none; transition: opacity .3s, transform .3s; line-height: 1; }
+.sys-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-h); }
+.sys-card:hover::after { opacity: .13; transform: scale(1.08) rotate(-5deg); }
+.sys-icon { font-size: 1.9rem; margin-bottom: 14px; display: block; }
+.sys-num { font-family: 'Lora', serif; font-size: 2.1rem; font-weight: 600; color: var(--sage); line-height: 1; margin-bottom: 3px; }
+.sys-unit { font-family: 'Nunito', sans-serif; font-size: 9.5px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 14px; display: block; }
+.sys-title { font-family: 'Lora', serif; font-size: 1.05rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.sys-body { font-size: 0.85rem; font-weight: 300; color: var(--soft); line-height: 1.78; }
+
+/* ─── GLOSSARY ────────────────────────────────────── */
+.gloss-list { padding: 0 40px 48px; max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gloss-card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--r); padding: 18px 22px; box-shadow: var(--shadow); display: grid; grid-template-columns: 150px 1fr; gap: 14px; transition: transform .2s; }
+.gloss-card:hover { transform: translateY(-2px); }
+.gloss-term { font-family: 'Nunito', sans-serif; font-size: 10.5px; font-weight: 700; color: var(--sage-d); text-transform: uppercase; letter-spacing: .4px; padding-top: 2px; }
+.gloss-def { font-size: 0.85rem; font-weight: 300; color: var(--soft); line-height: 1.7; }
+
+/* ─── FOOTER ──────────────────────────────────────── */
+footer { background: var(--card); border-top: 1px solid var(--border); padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.footer-brand { font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 600; color: var(--sage-d); display: flex; align-items: center; gap: 8px; }
+.footer-note { font-family: 'Nunito', sans-serif; font-size: 10.5px; font-weight: 600; color: var(--soft); text-align: right; line-height: 1.6; }
+
+/* ─── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 980px) {
+  header, .tab-nav { padding: 0 20px; }
+  .hero { grid-template-columns: 1fr; padding: 36px 20px 28px; }
+  .hero-cell-card { display: none; }
+  .stat-strip { grid-template-columns: repeat(2, 1fr); padding: 0 20px 24px; }
+  .card-grid, .sys-grid { grid-template-columns: 1fr 1fr; padding: 0 20px 28px; }
+  .card-grid.cols-4 { grid-template-columns: 1fr 1fr; }
+  .gloss-list { grid-template-columns: 1fr; padding: 0 20px 28px; }
+  .callout { padding: 0 20px; }
+  .callout-inner { grid-template-columns: 1fr; gap: 16px; padding: 32px 28px; }
+  .timeline { padding: 0 20px 36px; }
+  .quiz-wrap { padding: 20px; }
+  .section-hdr { padding: 28px 20px 16px; }
+  footer { padding: 20px; flex-direction: column; gap: 8px; align-items: flex-start; }
+  .gloss-card { grid-template-columns: 1fr; gap: 5px; }
+}
+
+@media (max-width: 600px) {
+  .card-grid, .sys-grid { grid-template-columns: 1fr; }
+  .quiz-opts { grid-template-columns: 1fr; }
+  .stat-strip { grid-template-columns: 1fr 1fr; }
+  .chapter-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><div class="brand-leaf">🌿</div>Bio<em>logica</em></div>
+  <div class="header-right">
+    <span class="fact-count-badge">55+ Facts</span>
+    <div class="header-clock" id="hclock">—</div>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('intro',this)">🏠 Home</button>
+  <button class="tab-btn" onclick="showTab('cells',this)">🔬 Cell Biology</button>
+  <button class="tab-btn" onclick="showTab('micro',this)">🦠 Microbiome</button>
+  <button class="tab-btn" onclick="showTab('genetics',this)">🧬 Genetics</button>
+  <button class="tab-btn" onclick="showTab('evo',this)">🌍 Evolution</button>
+  <button class="tab-btn" onclick="showTab('brain',this)">🧠 Brain & Nerves</button>
+  <button class="tab-btn" onclick="showTab('systems',this)">🫀 Body Systems</button>
+  <button class="tab-btn" onclick="showTab('quiz',this)">✏️ Quiz</button>
+  <button class="tab-btn" onclick="showTab('glossary',this)">📖 Glossary</button>
+</nav>
+
+<div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+
+<!-- ════════════════════════ HOME ════════════════════════ -->
+<div class="page active" id="page-intro">
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow">✦ The Living Atlas · 55+ Verified Facts</div>
+      <h1 class="hero-h1">Life is the most<br><em>extraordinary</em><br>chemistry ever<br>discovered.</h1>
+      <p class="hero-body">Every cell in your body is a universe packed with billions of molecular machines running in flawless parallel. Eight chapters. Dozens of facts. One astonishing organism: you. </p>
+      <p class="hero-body">Geniss es Claudia. habe dich lieb</p>
+      <div class="chapter-grid">
+        <button class="ch-btn" onclick="showTabByName('cells')"><span class="ch-btn-icon">🔬</span><div class="ch-btn-title">Cell Biology</div><div class="ch-btn-sub">8 facts · Molecular world</div></button>
+        <button class="ch-btn" onclick="showTabByName('micro')"><span class="ch-btn-icon">🦠</span><div class="ch-btn-title">Microbiome</div><div class="ch-btn-sub">6 facts · Your inner ecosystem</div></button>
+        <button class="ch-btn" onclick="showTabByName('genetics')"><span class="ch-btn-icon">🧬</span><div class="ch-btn-title">Genetics</div><div class="ch-btn-sub">8 facts · DNA & genome</div></button>
+        <button class="ch-btn" onclick="showTabByName('evo')"><span class="ch-btn-icon">🌍</span><div class="ch-btn-title">Evolution</div><div class="ch-btn-sub">5 milestones · 4B year timeline</div></button>
+        <button class="ch-btn" onclick="showTabByName('brain')"><span class="ch-btn-icon">🧠</span><div class="ch-btn-title">Brain & Nerves</div><div class="ch-btn-sub">8 facts · Neural wonders</div></button>
+        <button class="ch-btn" onclick="showTabByName('systems')"><span class="ch-btn-icon">🫀</span><div class="ch-btn-title">Body Systems</div><div class="ch-btn-sub">8 facts · Human in numbers</div></button>
+        <button class="ch-btn" onclick="showTabByName('quiz')"><span class="ch-btn-icon">✏️</span><div class="ch-btn-title">Quiz</div><div class="ch-btn-sub">8 questions · Test yourself</div></button>
+        <button class="ch-btn" onclick="showTabByName('glossary')"><span class="ch-btn-icon">📖</span><div class="ch-btn-title">Glossary</div><div class="ch-btn-sub">16 key terms defined</div></button>
+      </div>
+    </div>
+    <div class="hero-cell-card">
+      <svg viewBox="0 0 260 260" width="200" height="200" style="filter:drop-shadow(0 0 12px rgba(90,138,106,.16))">
+        <ellipse cx="130" cy="130" rx="108" ry="98" fill="rgba(90,138,106,.06)"/>
+        <ellipse cx="130" cy="130" rx="110" ry="100" fill="none" stroke="#5a8a6a" stroke-width="2" stroke-dasharray="7 5" opacity=".5"/>
+        <ellipse cx="128" cy="125" rx="46" ry="39" fill="rgba(90,138,106,.13)" stroke="#5a8a6a" stroke-width="1.7" opacity=".8"/>
+        <circle cx="128" cy="87" r="3" fill="none" stroke="#5a8a6a" stroke-width="1.3" opacity=".5"/>
+        <circle cx="167" cy="110" r="3" fill="none" stroke="#5a8a6a" stroke-width="1.3" opacity=".5"/>
+        <circle cx="88"  cy="123" r="3" fill="none" stroke="#5a8a6a" stroke-width="1.3" opacity=".5"/>
+        <ellipse cx="128" cy="125" rx="18" ry="15" fill="rgba(90,138,106,.2)" stroke="#5a8a6a" stroke-width="1.3"/>
+        <path d="M118,118 Q128,111 138,118 Q128,125 118,132 Q128,139 138,132" fill="none" stroke="#5a8a6a" stroke-width="1.3" opacity=".7">
+          <animate attributeName="d" values="M118,118 Q128,111 138,118 Q128,125 118,132 Q128,139 138,132;M118,120 Q128,113 138,120 Q128,127 118,134 Q128,141 138,134;M118,118 Q128,111 138,118 Q128,125 118,132 Q128,139 138,132" dur="3s" repeatCount="indefinite"/>
+        </path>
+        <ellipse cx="191" cy="93" rx="18" ry="9" fill="rgba(196,135,74,.13)" stroke="#c4874a" stroke-width="1.3" transform="rotate(-30 191 93)"/>
+        <ellipse cx="64"  cy="164" rx="16" ry="8" fill="rgba(196,135,74,.13)" stroke="#c4874a" stroke-width="1.3" transform="rotate(20 64 164)"/>
+        <ellipse cx="80"  cy="89"  rx="22" ry="18" fill="rgba(44,55,42,.16)" stroke="rgba(90,138,106,.38)" stroke-width="1.3"/>
+        <line x1="128" y1="86" x2="128" y2="54" stroke="rgba(90,138,106,.28)" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="90"  y="50" font-family="sans-serif" font-size="8" fill="#5a8a6a">NUCLEUS</text>
+        <line x1="191" y1="84" x2="207" y2="63" stroke="rgba(196,135,74,.33)" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="170" y="59" font-family="sans-serif" font-size="8" fill="#c4874a">MITO.</text>
+        <line x1="80" y1="72" x2="53" y2="48" stroke="rgba(90,138,106,.28)" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="4"  y="45" font-family="sans-serif" font-size="8" fill="#5a8a6a">VACUOLE</text>
+      </svg>
+      <div class="cell-label"><strong>Eukaryotic Animal Cell</strong>Schematic · not to scale</div>
+    </div>
+  </div>
+
+  <div class="ticker-wrap">
+    <div class="ticker-inner">
+      &nbsp;🌿&nbsp; 86 billion neurons in your brain &nbsp;·&nbsp; Bacteria in your gut weigh ~200 g &nbsp;·&nbsp; You share 60% of DNA with a banana &nbsp;·&nbsp; The cornea has no blood supply &nbsp;·&nbsp; Your gut has its own nervous system with 500 million neurons &nbsp;·&nbsp; Blood vessels could circle Earth 2.5× &nbsp;·&nbsp; Babies are born with 300 bones — adults have 206 &nbsp;·&nbsp; You produce 1 litre of saliva daily &nbsp;·&nbsp; Every cell division copies 6 billion base pairs &nbsp;·&nbsp; Nerve signals reach 430 km/h &nbsp;·&nbsp; 50–70 billion cells die via apoptosis daily &nbsp;🌿&nbsp;
+      &nbsp;🌿&nbsp; 86 billion neurons in your brain &nbsp;·&nbsp; Bacteria in your gut weigh ~200 g &nbsp;·&nbsp; You share 60% of DNA with a banana &nbsp;·&nbsp; The cornea has no blood supply &nbsp;·&nbsp; Your gut has its own nervous system with 500 million neurons &nbsp;·&nbsp; Blood vessels could circle Earth 2.5× &nbsp;·&nbsp; Babies are born with 300 bones — adults have 206 &nbsp;·&nbsp; You produce 1 litre of saliva daily &nbsp;·&nbsp; Every cell division copies 6 billion base pairs &nbsp;·&nbsp; Nerve signals reach 430 km/h &nbsp;·&nbsp; 50–70 billion cells die via apoptosis daily &nbsp;🌿&nbsp;
+    </div>
+  </div>
+
+  <div class="stat-strip">
+    <div class="stat-card"><div class="stat-num">~30T</div><div class="stat-label">Human cells in your body</div></div>
+    <div class="stat-card"><div class="stat-num">3.8B</div><div class="stat-label">Years life has existed</div></div>
+    <div class="stat-card"><div class="stat-num">~20K</div><div class="stat-label">Protein-coding genes</div></div>
+    <div class="stat-card"><div class="stat-num">38T</div><div class="stat-label">Bacteria living inside you</div></div>
+  </div>
+
+  <footer>
+    <div class="footer-brand"><span>🌿</span> Bio<em style="font-style:italic;color:var(--sage)">logica</em></div>
+    <div class="footer-note">Alles Gute zum Geburtstag du Gras</div>
+  </footer>
+</div>
+
+<!-- ════════════════════════ CELL BIOLOGY ════════════════════════ -->
+<div class="page" id="page-cells">
+  <div class="section-hdr">
+    <h2>Cell Biology</h2><span class="pill">8 Facts</span>
+    <p class="section-desc">The molecular machinery inside every living cell — from powerhouses to self-destruction sequences.</p>
+  </div>
+  <div class="card-grid">
+    <div class="fact-card c-sage"><div class="fc-tag">Endosymbiosis</div><h3 class="fc-title">Mitochondria Were Once Free-Living Bacteria</h3><p class="fc-body">About 2 billion years ago, a prokaryote was engulfed by a larger cell and instead of being digested, became a permanent resident. This endosymbiotic event gave rise to the first eukaryotic cell. Mitochondria still carry their own circular DNA, divide by binary fission, and cannot be made from scratch. You inherited yours solely from your mother.</p><div class="fc-note">→ Mitochondrial DNA is maternally inherited only</div></div>
+    <div class="fact-card c-warm"><div class="fc-tag">Bioenergetics</div><h3 class="fc-title">Your Body Recycles Its Weight in ATP Daily</h3><p class="fc-body">ATP is biology's universal energy currency. Each mitochondrion's ATP synthase motor spins at up to 9,000 RPM. At rest, a human adult recycles roughly 40–70 kg of ATP every day — an amount close to body weight. This isn't stored: it is constantly regenerated in a relentless cycle from ADP and inorganic phosphate.</p><div class="fc-note">→ ~45–70 kg of ATP cycled per day, depending on activity</div></div>
+    <div class="fact-card c-sky"><div class="fc-tag">Membrane Biology</div><h3 class="fc-title">The Cell Membrane is 10,000× Thinner Than a Hair</h3><p class="fc-body">Cell membranes are not rigid walls — they are dynamic phospholipid bilayers, just 7–10 nanometres thick, packed with protein machines that control everything entering and leaving the cell. That is 10,000 times thinner than a human hair. Cholesterol, often vilified in diet contexts, is actually structurally essential for membrane flexibility and integrity.</p><div class="fc-note">→ 7–10 nm thick — thinner than visible light wavelengths</div></div>
+    <div class="fact-card c-blush"><div class="fc-tag">Apoptosis</div><h3 class="fc-title">50–70 Billion Cells Die in You Today — By Design</h3><p class="fc-body">Apoptosis is programmed cellular self-destruction — not failure, but a critical biological feature. Damaged, infected, or aged cells activate a genetic death sequence that dismantles them neatly without causing inflammation. It sculpts fingers from embryonic webbing and eliminates precancerous cells. Without it, cancer would be far more common.</p><div class="fc-note">→ Essential for embryonic development and tumour suppression</div></div>
+    <div class="fact-card c-lav"><div class="fc-tag">Cell Division</div><h3 class="fc-title">~4 Million Cells Divide in You Every Second</h3><p class="fc-body">Your body produces roughly 4 million new cells per second through mitosis — around 330 billion per day. Each division replicates 6 billion base pairs of DNA with extraordinary fidelity, approximately one uncorrected error per billion base pairs, thanks to proofreading enzymes and layered DNA repair mechanisms that catch nearly every mistake.</p><div class="fc-note">→ ~330 billion new cells produced every day</div></div>
+    <div class="fact-card c-teal"><div class="fc-tag">Cellular Power</div><h3 class="fc-title">A Single Cell Contains ~1 Billion Protein Molecules</h3><p class="fc-body">Inside a typical human cell, roughly one billion protein molecules are at work simultaneously. These proteins act as enzymes, structural scaffolds, transporters, and signals — each one a precisely folded chain of amino acids. The ribosome that builds them reads messenger RNA and assembles about 15 amino acids per second.</p><div class="fc-note">→ ~10 million ribosomes per cell actively making proteins</div></div>
+    <div class="fact-card c-gold"><div class="fc-tag">Stem Cells</div><h3 class="fc-title">Some Cells in Your Body Live Less Than 24 Hours</h3><p class="fc-body">Cell lifespan varies enormously. Gut lining cells last just 2–5 days. Red blood cells survive ~120 days. Liver cells live about 18 months. Some neurons in the cerebral cortex last a lifetime — never replaced. Meanwhile, bone cells turn over every 10 years, essentially rebuilding your entire skeleton from scratch each decade.</p><div class="fc-note">→ Your gut lining is completely renewed every 3–5 days</div></div>
+    <div class="fact-card c-rose"><div class="fc-tag">Energy Cost</div><h3 class="fc-title">The Cornea Has No Blood Supply — It Breathes Air</h3><p class="fc-body">The cornea of the eye is the only tissue in the human body with no blood vessels whatsoever. It receives oxygen directly from the air and nutrients from the aqueous humour behind it. This transparency is essential for vision — blood vessels would scatter light and make sight impossible. It's also why corneas can be transplanted relatively easily.</p><div class="fc-note">→ Corneal cells absorb oxygen directly from the atmosphere</div></div>
+  </div>
+  <div class="callout">
+    <div class="callout-inner">
+      <div class="callout-num">3.8<span class="callout-unit"> BYA</span></div>
+      <div class="callout-text">
+        <h3>Years of Unbroken Life on Earth</h3>
+        <p>Every organism alive today is part of an uninterrupted chain of reproduction stretching back 3.8 billion years. Not one link was ever broken. You are, in the most literal sense, ancient beyond comprehension — a direct descendant of the very first self-replicating molecules.</p>
+        <div class="callout-note">Oldest microfossils · Western Australia · Life predates the oxygen atmosphere</div>
+      </div>
+    </div>
+  </div>
+  <footer><div class="footer-brand"><span>🌿</span> Bio<em style="font-style:italic;color:var(--sage)">logica</em></div><div class="footer-note">Chapter — Cell Biology</div></footer>
+</div>
+
+<!-- ════════════════════════ MICROBIOME ════════════════════════ -->
+<div class="page" id="page-micro">
+  <div class="section-hdr">
+    <h2>The Human Microbiome</h2><span class="pill">6 Facts</span>
+    <p class="section-desc">You are not alone — trillions of microorganisms call your body home, and most of them are keeping you alive.</p>
+  </div>
+  <div class="card-grid">
+    <div class="fact-card c-sage"><div class="fc-tag">Cell Count</div><h3 class="fc-title">You Are Roughly Half Microbial — by Cell Count</h3><p class="fc-body">The long-cited claim that bacteria outnumber your cells 10:1 is a myth. A 2016 study by Sender et al. (Weizmann Institute) revised this dramatically: a 70 kg adult carries approximately 38 trillion bacterial cells alongside ~30 trillion human cells — a ratio of about 1.3:1. You are essentially half microbe by cell count, which is still remarkable.</p><div class="fc-note">→ Sender, Fuchs &amp; Milo (2016) · Cell · ratio ~1.3:1</div></div>
+    <div class="fact-card c-warm"><div class="fc-tag">Weight</div><h3 class="fc-title">All Your Bacteria Together Weigh About 200 Grams</h3><p class="fc-body">Despite outnumbering your cells, bacteria are so tiny that all of them combined weigh only about 200 grams in an average adult — roughly the weight of a large apple. Most live in the colon, where they ferment dietary fibre, synthesise vitamins including B12 and K, and train the immune system to distinguish friend from foe.</p><div class="fc-note">→ ~200 g total bacterial mass, mostly in the large intestine</div></div>
+    <div class="fact-card c-lav"><div class="fc-tag">Diversity</div><h3 class="fc-title">Your Gut Contains Over 1,000 Bacterial Species</h3><p class="fc-body">The human gut microbiome contains upwards of 1,000 different bacterial species, collectively encoding ~3 million genes — around 150 times more genes than your own genome. No two people have identical microbiomes. Diet, geography, mode of birth, antibiotic use, and stress all shape your microbial community in profound and lasting ways.</p><div class="fc-note">→ ~3 million microbial genes vs. your ~20,000 human genes</div></div>
+    <div class="fact-card c-sky"><div class="fc-tag">Health Impact</div><h3 class="fc-title">Your Gut Microbiome Talks to Your Brain</h3><p class="fc-body">The gut-brain axis is a real, bidirectional communication highway. Gut bacteria produce neurotransmitters including serotonin, GABA, and dopamine precursors. Remarkably, about 90% of the body's serotonin is produced in the gut, not the brain. Disruptions to the microbiome have been linked to depression, anxiety, autism spectrum disorder, and Parkinson's disease.</p><div class="fc-note">→ ~90% of serotonin is made in the gut, not the brain</div></div>
+    <div class="fact-card c-blush"><div class="fc-tag">Immune System</div><h3 class="fc-title">70% of Your Immune System Lives in Your Gut</h3><p class="fc-body">The gut-associated lymphoid tissue (GALT) houses approximately 70–80% of the body's immune cells. Gut bacteria are essential teachers of the immune system — exposing it to harmless antigens so it learns to distinguish genuine threats from friendly microbes and food proteins. Sterile, bacteria-free mice have severely underdeveloped immune systems.</p><div class="fc-note">→ GALT is the largest immune organ in the human body</div></div>
+    <div class="fact-card c-teal"><div class="fc-tag">Virobiome</div><h3 class="fc-title">Viruses in Your Body May Match Bacterial Numbers</h3><p class="fc-body">Your body hosts a "virobiome" — a vast community of viruses, mostly bacteriophages (viruses that infect bacteria). A 2021 study revised earlier estimates and suggested the number of viruses in the human body is roughly comparable to the number of bacteria, meaning together microbes and viruses likely outnumber your cells by at least 2:1.</p><div class="fc-note">→ Mostly bacteriophages — they infect bacteria, not you</div></div>
+  </div>
+  <footer><div class="footer-brand"><span>🌿</span> Bio<em style="font-style:italic;color:var(--sage)">logica</em></div><div class="footer-note">Chapter — Microbiome</div></footer>
+</div>
+
+<!-- ════════════════════════ GENETICS ════════════════════════ -->
+<div class="page" id="page-genetics">
+  <div class="section-hdr">
+    <h2>Genetics &amp; DNA</h2><span class="pill">8 Facts</span>
+    <p class="section-desc">The instruction manual for life — 3.2 billion letters, wound into every cell you have.</p>
+  </div>
+  <div class="card-grid">
+    <div class="fact-card c-sage"><div class="fc-tag">Genome Size</div><h3 class="fc-title">2 Metres of DNA Packed Into Every Cell</h3><p class="fc-body">Each of your ~30 trillion cells contains approximately 2 metres of DNA wound into compact chromosomes using proteins called histones. The total DNA in your body stretched end to end would reach roughly 60 times from Earth to the Sun and back — not 300× as often claimed, based on updated cell count estimates of ~30 trillion.</p><div class="fc-note">→ ~6 billion base pairs per diploid cell (haploide: 3.2B)</div></div>
+    <div class="fact-card c-warm"><div class="fc-tag">Protein Coding</div><h3 class="fc-title">Only 1.5% of Your DNA Codes for Proteins</h3><p class="fc-body">Of the 3.2 billion base pairs in your genome, only about 1.5% directly encodes protein sequences. The rest was once dismissed as "junk DNA" but is now known to carry crucial regulatory sequences, non-coding RNA genes, chromatin structure signals, and evolutionary relics. The ENCODE Project found that ~80% of the genome is biochemically active in some way.</p><div class="fc-note">→ ENCODE Project (2012): ~80% of genome is functional</div></div>
+    <div class="fact-card c-lav"><div class="fc-tag">Shared DNA</div><h3 class="fc-title">You Share 98.7% of DNA With a Chimpanzee</h3><p class="fc-body">Humans and chimpanzees share approximately 98.7% of their DNA sequence. You share ~85% with a mouse, ~60% with a fruit fly, ~60% with a banana, and ~31% with brewer's yeast. Genetically, you are less different from a chimp than a dog is from a wolf. What makes us distinctly human is mostly regulatory gene expression, not entirely different genes.</p><div class="fc-note">→ Human-chimp divergence: ~5–7 million years ago</div></div>
+    <div class="fact-card c-sky"><div class="fc-tag">Mutation Rate</div><h3 class="fc-title">You Have ~60 New Mutations Not Present in Your Parents</h3><p class="fc-body">Every human is born with approximately 60 de novo mutations — spelling changes in DNA that arose spontaneously and were not present in either parent. Most are harmless. A handful drive genetic diseases. Over millions of generations, this slow drip of variation is the raw material that natural selection acts upon. Mutation is both risk and opportunity.</p><div class="fc-note">→ ~1–2 mutations per cell division copying 6 billion base pairs</div></div>
+    <div class="fact-card c-blush"><div class="fc-tag">Epigenetics</div><h3 class="fc-title">Your DNA Can Be Switched On and Off Without Changing Sequence</h3><p class="fc-body">Epigenetics is the study of heritable gene expression changes that don't alter the DNA sequence. Methyl groups attach to DNA, and histone proteins compact or loosen it, switching genes on or off. Diet, stress, trauma, and environment all leave epigenetic marks. Some marks can be passed to offspring — a mechanism once thought impossible in humans.</p><div class="fc-note">→ Epigenetic changes can be inherited across generations</div></div>
+    <div class="fact-card c-gold"><div class="fc-tag">Gene Count</div><h3 class="fc-title">A Water Flea Has More Genes Than You Do</h3><p class="fc-body">The human genome contains roughly 20,000–25,000 protein-coding genes. The tiny water flea Daphnia pulex has over 31,000. Wheat has 95,000 genes. Gene count is a surprisingly poor predictor of biological complexity — it's how genes are regulated, combined, and expressed that creates the staggering difference between a yeast cell and a human brain.</p><div class="fc-note">→ Complexity comes from gene regulation, not gene count</div></div>
+    <div class="fact-card c-teal"><div class="fc-tag">Ancient DNA</div><h3 class="fc-title">You Carry Ancient Viral DNA in Your Genome</h3><p class="fc-body">About 8% of the human genome consists of endogenous retroviruses (ERVs) — fragments of ancient viruses that infected our ancestors millions of years ago and were incorporated into the germline. Many are now inactive, but some have been co-opted for vital biological functions. The protein syncytin, essential for forming the placenta, originally comes from a viral gene.</p><div class="fc-note">→ ~8% of your genome is ancient viral DNA</div></div>
+    <div class="fact-card c-rose"><div class="fc-tag">CRISPR</div><h3 class="fc-title">Bacteria Invented Gene Editing Long Before We Did</h3><p class="fc-body">CRISPR-Cas9, the revolutionary gene editing technology, is not a human invention — it is a bacterial immune system. Bacteria use CRISPR to store snippets of viral DNA and cut matching sequences if the virus returns. Scientists adapted this natural mechanism into a precise tool to edit any gene in any organism. The 2020 Nobel Prize in Chemistry recognised this discovery.</p><div class="fc-note">→ Jennifer Doudna &amp; Emmanuelle Charpentier, Nobel 2020</div></div>
+  </div>
+  <footer><div class="footer-brand"><span>🌿</span> Bio<em style="font-style:italic;color:var(--sage)">logica</em></div><div class="footer-note">Chapter — Genetics &amp; DNA</div></footer>
+</div>
+
+<!-- ════════════════════════ EVOLUTION ════════════════════════ -->
+<div class="page" id="page-evo">
+  <div class="section-hdr">
+    <h2>Evolutionary Biology</h2><span class="pill">5 Milestones</span>
+    <p class="section-desc">Four billion years of ruthless, brilliant biological problem-solving.</p>
+  </div>
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-date-col"><div class="tl-date">3.8 BYA</div><div class="tl-era">Archean Eon</div></div><div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div><div class="tl-card"><h4>First Life — Prokaryotes in the Primordial Ocean</h4><p>Simple single-celled organisms without a nucleus emerge in warm, mineral-rich seas. They establish the biological blueprint still dominating Earth today — bacteria and archaea outnumber all other life combined. Their metabolic innovations (photosynthesis, nitrogen fixation) permanently reshaped the planet's atmosphere, generating the oxygen that all animals now breathe.</p></div></div>
+    <div class="tl-item"><div class="tl-date-col"><div class="tl-date">2.1 BYA</div><div class="tl-era">Proterozoic</div></div><div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div><div class="tl-card"><h4>The Endosymbiotic Revolution — Eukaryotes Emerge</h4><p>A prokaryote engulfs a proteobacterium and, instead of digesting it, forms a cooperative superorganism. The first eukaryotic cell is born — with a nucleus and mitochondria. Every animal, plant, fungus, and protist alive today descends from this single event. It remains the most consequential cellular innovation in the history of life on Earth.</p></div></div>
+    <div class="tl-item"><div class="tl-date-col"><div class="tl-date">540 MYA</div><div class="tl-era">Cambrian</div></div><div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div><div class="tl-card"><h4>The Cambrian Explosion — All Body Plans Appear at Once</h4><p>In roughly 20 million years, virtually all major animal body plans appear simultaneously in the fossil record. Eyes, exoskeletons, mouthparts, appendages, and predation all emerge together. The biological arms race begins. The trigger remains debated: rising oxygen levels, shifting ocean chemistry, predation feedback loops — likely a combination of all three.</p></div></div>
+    <div class="tl-item"><div class="tl-date-col"><div class="tl-date">375 MYA</div><div class="tl-era">Devonian</div></div><div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div><div class="tl-card"><h4>Fish Walk onto Land — The Tetrapod Transition</h4><p>Lobe-finned fish evolve proto-limbs and colonise terrestrial environments. Fins gradually become weight-bearing legs; gills are supplemented by primitive lungs. The bones in your wrist are direct descendants of fish fin bones — a lineage your skeleton still silently carries. This transition set the stage for all amphibians, reptiles, birds, and mammals.</p></div></div>
+    <div class="tl-item"><div class="tl-date-col"><div class="tl-date">300K YA</div><div class="tl-era">Pleistocene</div></div><div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div><div class="tl-card"><h4>Homo sapiens — The Storytelling Ape</h4><p>Modern humans emerge in Africa. We share 98.7% of our DNA with chimpanzees, ~85% with zebrafish, and ~31% with yeast. What distinguishes us is not genomic uniqueness, but what we do with it: symbolic language, cumulative culture, and — uniquely — the capacity to study, understand, and write about our own biology.</p></div></div>
+  </div>
+  <div class="callout">
+    <div class="callout-inner">
+      <div class="callout-num">5<span class="callout-unit"> K</span></div>
+      <div class="callout-text">
+        <h3>Species of Mammals on Earth — Out of 8.7 Million Total</h3>
+        <p>Biologists estimate there are roughly 8.7 million eukaryotic species on Earth, of which only ~5,500 are mammals. Insects account for roughly 1 million described species alone. Only about 14% of all species have been formally described by science. The vast majority of life on Earth remains unknown and unclassified.</p>
+        <div class="callout-note">Mora et al. (2011) · PLOS Biology · ~86% of species still undiscovered</div>
+      </div>
+    </div>
+  </div>
+  <footer><div class="footer-brand"><span>🌿</span> Bio<em style="font-style:italic;color:var(--sage)">logica</em></div><div class="footer-note">Chapter — Evolution</div></footer>
+</div>
+
+<!-- ════════════════════════ BRAIN & NERVES ════════════════════════ -->
+<div class="page" id="page-brain">
+  <div class="section-hdr">
+    <h2>Brain &amp; Nervous System</h2><span class="pill">8 Facts</span>
+    <p class="section-desc">The most complex structure in the known universe — running on 20 watts.</p>
+  </div>
+  <div class="card-grid">
+    <div class="fact-card c-sage"><div class="fc-tag">Neuron Count</div><h3 class="fc-title">86 Billion Neurons — and Equally Many Glial Cells</h3><p class="fc-body">Your brain contains approximately 86 billion neurons (Azevedo et al., 2009). It also contains roughly the same number of glial cells, which were once thought to be passive scaffolding but are now known to actively modulate synaptic transmission, manage brain metabolism, and play critical roles in memory formation and disease.</p><div class="fc-note">→ Azevedo et al. (2009) · Journal of Comparative Neurology</div></div>
+    <div class="fact-card c-warm"><div class="fc-tag">Synapses</div><h3 class="fc-title">100–500 Trillion Synaptic Connections</h3><p class="fc-body">Each neuron forms on average thousands of synaptic connections to other neurons. The estimated total number of synapses in the human brain is 100–500 trillion — more than the number of stars in the Milky Way. Every memory, habit, and learned skill is encoded as a specific pattern of synaptic strengths across this colossal network.</p><div class="fc-note">→ Synapse count exceeds stars in the Milky Way (~200B stars)</div></div>
+    <div class="fact-card c-lav"><div class="fc-tag">Speed</div><h3 class="fc-title">Nerve Signals Travel at up to 430 km/h</h3><p class="fc-body">The fastest nerve impulses travel at ~120 m/s (430 km/h) along thick, myelinated axons — comparable to a Formula 1 car at top speed. Unmyelinated fibres transmit much more slowly, at just 0.5–2 m/s. Myelin — the fatty insulating sheath — is the key: it forces the electrical signal to jump between nodes, dramatically increasing speed.</p><div class="fc-note">→ Myelinated A-fibres: 70–120 m/s · C-fibres: 0.5–2 m/s</div></div>
+    <div class="fact-card c-sky"><div class="fc-tag">Energy Use</div><h3 class="fc-title">Your Brain Runs on ~20 Watts — Same as a Dim Bulb</h3><p class="fc-body">Despite accounting for only 2% of body weight, the brain consumes roughly 20% of the body's total energy at rest — about 20 watts. This energy goes mostly to maintaining the ion gradients across neuron membranes that make electrical signalling possible. During intense thought, energy consumption increases only marginally above baseline.</p><div class="fc-note">→ ~20% of total body energy consumed by 2% of body mass</div></div>
+    <div class="fact-card c-blush"><div class="fc-tag">Memory</div><h3 class="fc-title">Your Brain Rewrites Memories Every Time You Recall Them</h3><p class="fc-body">Human memory is not like a recording. Each time you recall a memory, it becomes temporarily unstable and is actively rewritten before being re-stored — a process called reconsolidation. This makes memories subtly malleable: influenced by current mood, new information, and suggestion. Even vivid "flashbulb" memories are subject to this distortion over time.</p><div class="fc-note">→ Memory reconsolidation discovered by Nader, Schafe &amp; LeDoux (2000)</div></div>
+    <div class="fact-card c-gold"><div class="fc-tag">Gut-Brain</div><h3 class="fc-title">Your Gut Has Its Own Nervous System</h3><p class="fc-body">The enteric nervous system (ENS), embedded in the lining of the gastrointestinal tract, contains around 500 million neurons — more than the spinal cord. It can operate entirely independently of the brain, regulating digestion, immune response, and gut motility. The ENS communicates with the brain via the vagus nerve, sending signals in both directions.</p><div class="fc-note">→ ~500 million neurons in the ENS — the "second brain"</div></div>
+    <div class="fact-card c-teal"><div class="fc-tag">Sleep</div><h3 class="fc-title">Your Brain Cleans Itself While You Sleep</h3><p class="fc-body">During sleep, the glymphatic system — a network of channels around blood vessels — expands and flushes out metabolic waste products that accumulate during waking hours, including amyloid-beta and tau proteins linked to Alzheimer's disease. This "brain wash" is most active during deep slow-wave sleep, and significantly impaired by even one night of poor sleep.</p><div class="fc-note">→ Glymphatic system discovered by Maiken Nedergaard (2013)</div></div>
+    <div class="fact-card c-rose"><div class="fc-tag">Consciousness</div><h3 class="fc-title">Visual Processing Takes as Little as 13 Milliseconds</h3><p class="fc-body">Your brain can detect and categorise an image in as little as 13 milliseconds — far below the threshold of conscious perception. Yet conscious awareness of a voluntary movement may arrive up to 500 milliseconds after the brain has already initiated the action. The relationship between neural activity and the subjective experience of consciousness remains one of the deepest unsolved problems in science.</p><div class="fc-note">→ Potter et al. (2014) · Attention, Perception &amp; Psychophysics</div></div>
+  </div>
+  <div class="callout">
+    <div class="callout-inner">
+      <div class="callout-num">86<span class="callout-unit"> B</span></div>
+      <div class="callout-text">
+        <h3>Neurons in the Human Brain</h3>
+        <p>Your brain contains ~86 billion neurons, each forming thousands of synaptic connections. The total number of synapses — 100–500 trillion — exceeds the stars in the Milky Way. Every memory, emotion, and thought is a unique electrical and chemical pattern across this network, running on ~20 watts.</p>
+        <div class="callout-note">Azevedo et al. (2009) · Journal of Comparative Neurology · 20W ≈ a dim light bulb</div>
+      </div>
+    </div>
+  </div>
+  <footer><div class="footer-brand"><span>🌿</span> Bio<em style="font-style:italic;color:var(--sage)">logica</em></div><div class="footer-note">Chapter — Brain &amp; Nervous System</div></footer>
+</div>
+
+<!-- ════════════════════════ BODY SYSTEMS ════════════════════════ -->
+<div class="page" id="page-systems">
+  <div class="section-hdr">
+    <h2>Body Systems</h2><span class="pill">8 Facts</span>
+    <p class="section-desc">The human organism, precisely quantified — from heartbeats to bone counts.</p>
+  </div>
+  <div class="sys-grid">
+    <div class="sys-card" data-emoji="🫀"><span class="sys-icon">🫀</span><div class="sys-num">~100K</div><span class="sys-unit">Heartbeats per day</span><div class="sys-title">The Tireless Pump</div><p class="sys-body">Your heart beats ~100,000 times per day without pause. Over 80 years, that is close to 3 billion contractions. At peak exertion, cardiac output rises from ~5 to 25 litres per minute — a fivefold increase. The heart muscle (myocardium) never rests between beats, even for a fraction of a second.</p></div>
+    <div class="sys-card" data-emoji="🫁"><span class="sys-icon">🫁</span><div class="sys-num">70 m²</div><span class="sys-unit">Lung surface area</span><div class="sys-title">A Tennis Court in Your Chest</div><p class="sys-body">Your lungs contain ~480 million alveoli — tiny air sacs — whose combined surface area equals roughly 70 m², the size of a tennis court. This enormous area enables the rapid gas exchange that keeps every cell oxygenated. You will take approximately 480 million breaths over your lifetime.</p></div>
+    <div class="sys-card" data-emoji="🦴"><span class="sys-icon">🦴</span><div class="sys-num">206</div><span class="sys-unit">Bones in the adult skeleton</span><div class="sys-title">From 300 to 206</div><p class="sys-body">Babies are born with ~300 bones. Over childhood and adolescence, many fuse together, leaving adults with 206. More than half of your bones — 106 — are in your hands, wrists, feet, and ankles. The longest bone is the femur; the smallest is the stirrup bone in the ear, at just 3 mm.</p></div>
+    <div class="sys-card" data-emoji="🩸"><span class="sys-icon">🩸</span><div class="sys-num">2.5×</div><span class="sys-unit">Earth circumferences</span><div class="sys-title">Your Blood Vessel Network</div><p class="sys-body">If all of the blood vessels in a human adult were laid end to end — arteries, veins, and capillaries — they would stretch approximately 100,000 km, enough to circle Earth about 2.5 times. Capillaries, the smallest vessels, account for the vast majority of that length. Red blood cells often travel single-file through them.</p></div>
+    <div class="sys-card" data-emoji="💪"><span class="sys-icon">💪</span><div class="sys-num">600+</div><span class="sys-unit">Muscles in the body</span><div class="sys-title">The Moving Machine</div><p class="sys-body">The human body contains over 600 skeletal muscles, controlled voluntarily. The largest is the gluteus maximus; the smallest is the stapedius inside the ear at ~1 mm. About 40% of body weight in an average adult is muscle. The hardest-working muscle is the heart — it is cardiac muscle, which never stops contracting from before birth until death.</p></div>
+    <div class="sys-card" data-emoji="🧬"><span class="sys-icon">🔴</span><div class="sys-num">2M</div><span class="sys-unit">New red blood cells per second</span><div class="sys-title">The Red Blood Cell Factory</div><p class="sys-body">Your bone marrow produces approximately 2 million red blood cells every second — around 170 billion per day. Each red blood cell lives for roughly 120 days before being recycled by the spleen. They carry no nucleus (it is expelled during development), devoting maximum space to haemoglobin — the protein that carries oxygen.</p></div>
+    <div class="sys-card" data-emoji="👁️"><span class="sys-icon">👁️</span><div class="sys-num">576</div><span class="sys-unit">Megapixels (approx.)</span><div class="sys-title">The Human Eye</div><p class="sys-body">The human eye is estimated to have the equivalent resolution of roughly 576 megapixels — but this is misleading. Most of that detail is concentrated in the fovea, a tiny central region of the retina. The peripheral vision is far lower resolution. Your brain actively constructs a high-resolution perception by combining rapid eye movements (saccades) with memory.</p></div>
+    <div class="sys-card" data-emoji="💧"><span class="sys-icon">💧</span><div class="sys-num">1 L</div><span class="sys-unit">Saliva produced daily</span><div class="sys-title">The Underrated Fluid</div><p class="sys-body">Your mouth produces approximately 1 litre of saliva every day — enough to fill 2 wine glasses. Saliva contains enzymes that begin digesting carbohydrates before food even reaches the stomach. It also neutralises acids, kills bacteria, and carries growth factors that help wounds in the mouth heal far faster than cuts anywhere else on the body.</p></div>
+  </div>
+  <footer><div class="footer-brand"><span>🌿</span> Bio<em style="font-style:italic;color:var(--sage)">logica</em></div><div class="footer-note">Chapter — Body Systems</div></footer>
+</div>
+
+<!-- ════════════════════════ QUIZ ════════════════════════ -->
+<div class="page" id="page-quiz">
+  <div class="section-hdr">
+    <h2>Test Your Knowledge</h2><span class="pill">8 Questions</span>
+    <p class="section-desc">Covering all chapters — see how much you've absorbed.</p>
+  </div>
+  <div class="quiz-wrap">
+    <div class="quiz-card">
+      <div class="quiz-top">
+        <span class="quiz-counter-lbl" id="q-counter">Question 1 of 8</span>
+        <div class="quiz-pips" id="quiz-pips"></div>
+        <span class="quiz-score-tag" id="quiz-score">Score: 0 / 8</span>
+      </div>
+      <div class="quiz-q" id="quiz-q"></div>
+      <div class="quiz-opts" id="quiz-opts"></div>
+      <div class="quiz-expl" id="quiz-expl"></div>
+      <button class="quiz-next" id="quiz-next">Next Question →</button>
+    </div>
+  </div>
+  <footer><div class="footer-brand"><span>🌿</span> Bio<em style="font-style:italic;color:var(--sage)">logica</em></div><div class="footer-note">Chapter — Quiz</div></footer>
+</div>
+
+<!-- ════════════════════════ GLOSSARY ════════════════════════ -->
+<div class="page" id="page-glossary">
+  <div class="section-hdr">
+    <h2>Glossary</h2><span class="pill">16 Terms</span>
+    <p class="section-desc">Key terms from all chapters, concisely defined.</p>
+  </div>
+  <div class="gloss-list">
+    <div class="gloss-card"><div class="gloss-term">Apoptosis</div><div class="gloss-def">Programmed cell death — an orderly, genetically encoded self-destruction sequence in damaged, infected, or aged cells. Distinct from necrosis. Critical for development and cancer suppression.</div></div>
+    <div class="gloss-card"><div class="gloss-term">ATP</div><div class="gloss-def">Adenosine Triphosphate. The universal energy currency of cells. Releases ~30.5 kJ/mol when a phosphate bond is hydrolysed. Recycled continuously rather than stored in large quantities.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Endosymbiosis</div><div class="gloss-def">A relationship where one organism lives inside another to mutual benefit. Explains the origin of mitochondria and chloroplasts from free-living bacteria engulfed ~2 billion years ago.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Eukaryote</div><div class="gloss-def">An organism with cells containing a membrane-bound nucleus and organelles. Includes all animals, plants, fungi, and protists. Distinct from prokaryotes, which lack a nucleus.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Epigenetics</div><div class="gloss-def">Heritable changes in gene expression that don't alter DNA sequence. Mechanisms include DNA methylation and histone modification, influenced by environment, diet, and stress.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Microbiome</div><div class="gloss-def">The community of microorganisms (bacteria, viruses, fungi, archaea) living in and on the human body. The gut microbiome alone contains ~38 trillion bacterial cells and ~3 million genes.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Mitosis</div><div class="gloss-def">Cell division producing two genetically identical daughter cells. Responsible for growth and tissue repair. ~4 million mitoses per second in a resting adult. Distinct from meiosis (gamete production).</div></div>
+    <div class="gloss-card"><div class="gloss-term">Mitochondria</div><div class="gloss-def">Organelles producing ATP via oxidative phosphorylation. Have their own circular DNA inherited maternally. Descended from ancient proteobacteria by endosymbiosis ~2 billion years ago.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Base Pair</div><div class="gloss-def">A matched pair of nucleotide bases (A–T or G–C) bonded across the two DNA strands. The human haploid genome contains ~3.2 billion base pairs; diploid cells contain ~6.4 billion.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Neuron</div><div class="gloss-def">A cell specialised to transmit electrical and chemical signals. The human brain contains ~86 billion neurons, forming ~100–500 trillion synaptic connections with each other.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Glymphatic System</div><div class="gloss-def">A waste-clearance network in the brain that flushes metabolic toxins (including amyloid-beta) during sleep. Discovered in 2013 by Maiken Nedergaard. Impaired by sleep deprivation.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Natural Selection</div><div class="gloss-def">Heritable traits improving reproductive success become more common in a population over generations. The primary mechanism of evolution, proposed by Charles Darwin in 1859.</div></div>
+    <div class="gloss-card"><div class="gloss-term">CRISPR-Cas9</div><div class="gloss-def">A precise gene-editing tool adapted from a bacterial immune system. Allows targeted cuts in DNA at any genomic location. 2020 Nobel Prize in Chemistry awarded to Doudna &amp; Charpentier.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Endogenous Retrovirus</div><div class="gloss-def">Ancient viral DNA permanently integrated into the host genome. About 8% of the human genome consists of such sequences. Some have been co-opted for essential biological functions.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Phospholipid Bilayer</div><div class="gloss-def">The fundamental structure of cell membranes: two phospholipid layers arranged tail-to-tail, forming a fluid, selectively permeable barrier 7–10 nm thick.</div></div>
+    <div class="gloss-card"><div class="gloss-term">Enteric Nervous System</div><div class="gloss-def">A network of ~500 million neurons lining the gastrointestinal tract. Capable of operating independently of the brain. Sometimes called the "second brain." Produces ~90% of body serotonin.</div></div>
+  </div>
+  <footer><div class="footer-brand"><span>🌿</span> Bio<em style="font-style:italic;color:var(--sage)">logica</em></div><div class="footer-note">Chapter — Glossary · All facts verified</div></footer>
+</div>
+
+<script>
+// Clock
+(function(){ const t=()=>{document.getElementById('hclock').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}; t(); setInterval(t,1000); })();
+
+// Progress bar
+window.addEventListener('scroll',()=>{ const d=document.documentElement; const p=d.scrollHeight-d.clientHeight>0?(window.scrollY/(d.scrollHeight-d.clientHeight))*100:0; document.getElementById('pfill').style.width=p+'%'; },{passive:true});
+
+// Tabs
+const PAGES={intro:'page-intro',cells:'page-cells',micro:'page-micro',genetics:'page-genetics',evo:'page-evo',brain:'page-brain',systems:'page-systems',quiz:'page-quiz',glossary:'page-glossary'};
+const TABMAP={intro:0,cells:1,micro:2,genetics:3,evo:4,brain:5,systems:6,quiz:7,glossary:8};
+
+function showTab(name,btn){
+  Object.values(PAGES).forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
+  const t=document.getElementById(PAGES[name]);if(t)t.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showTabByName(name){
+  const btns=document.querySelectorAll('.tab-btn');
+  showTab(name,btns[TABMAP[name]]);
+}
+
+// Quiz
+const QS=[
+  {q:'What is the approximate ratio of bacterial to human cells in your body?',opts:['10:1','100:1','1.3:1','1:10'],ans:2,expl:'<strong>~1.3:1</strong> — The long-cited 10:1 myth was debunked by Sender, Fuchs &amp; Milo (2016). An adult carries roughly 38 trillion bacterial cells alongside ~30 trillion human cells. Still remarkable: you are essentially half microbe by cell count.'},
+  {q:'Which molecule is universally known as the energy currency of the cell?',opts:['Glucose','ATP','DNA','Haemoglobin'],ans:1,expl:'<strong>ATP — Adenosine Triphosphate.</strong> It stores energy in phosphate bonds and releases ~30.5 kJ/mol when a bond is broken. Glucose is used to <em>make</em> ATP — but ATP is the direct fuel for virtually every cellular process.'},
+  {q:'What percentage of the human genome directly codes for proteins?',opts:['About 50%','About 25%','About 8%','About 1.5%'],ans:3,expl:'<strong>~1.5%.</strong> The vast majority of the genome is non-coding. The ENCODE Project found ~80% is biochemically active in some way — including regulatory sequences, non-coding RNAs, and structural elements once dismissed as "junk DNA."'},
+  {q:'What organelle descends from free-living bacteria engulfed ~2 billion years ago?',opts:['Ribosome','Nucleus','Golgi Apparatus','Mitochondrion'],ans:3,expl:'<strong>Mitochondria.</strong> Lynn Margulis\'s endosymbiotic theory: mitochondria descend from proteobacteria engulfed by early eukaryotes. Evidence: own circular DNA, double membranes, binary fission, and bacterial-type ribosomes.'},
+  {q:'About how many neurons are in the human brain?',opts:['10 billion','86 billion','200 billion','500 billion'],ans:1,expl:'<strong>~86 billion neurons</strong> — determined by Azevedo et al. (2009) using a precise isotropic fractionation method. Alongside these are roughly the same number of glial cells, which play active roles in brain function.'},
+  {q:'What percentage of the body\'s serotonin is made in the gut?',opts:['10%','50%','90%','5%'],ans:2,expl:'<strong>~90%</strong> of the body\'s serotonin is produced in the gut, not the brain. It is made by enterochromaffin cells in the intestinal lining and plays a key role in gut motility, nausea, and the gut-brain axis.'},
+  {q:'What is the glymphatic system responsible for?',opts:['Digesting food','Producing red blood cells','Filtering waste from the brain during sleep','Regulating blood pressure'],ans:2,expl:'<strong>Cleaning the brain during sleep.</strong> Discovered by Nedergaard (2013), the glymphatic system flushes metabolic waste products — including amyloid-beta linked to Alzheimer\'s — from the brain. It is most active during deep slow-wave sleep.'},
+  {q:'Approximately what percentage of the human genome consists of ancient viral DNA?',opts:['0.1%','8%','25%','50%'],ans:1,expl:'<strong>~8%</strong> of the human genome consists of endogenous retroviruses (ERVs) — fragments of ancient viruses permanently incorporated into our germline. Some are now inactive; others have been co-opted for biological functions, including the placenta protein syncytin.'}
+];
+
+let qCur=0,qAnswered=false,qScore=0;
+
+function buildPips(){
+  const p=document.getElementById('quiz-pips');
+  p.innerHTML='';
+  QS.forEach((_,i)=>{const d=document.createElement('div');d.className='qpip'+(i<qCur?' done':i===qCur?' active':'');p.appendChild(d);});
+}
+
+function renderQ(i){
+  qAnswered=false;
+  const q=QS[i];
+  document.getElementById('quiz-q').textContent=q.q;
+  document.getElementById('q-counter').textContent=`Question ${i+1} of ${QS.length}`;
+  const optsEl=document.getElementById('quiz-opts');
+  optsEl.innerHTML='';
+  q.opts.forEach((opt,j)=>{
+    const btn=document.createElement('button');
+    btn.className='q-btn';
+    btn.innerHTML=`<span class="q-ltr">${'ABCD'[j]}</span>${opt}`;
+    btn.addEventListener('click',()=>pick(j));
+    optsEl.appendChild(btn);
+  });
+  document.getElementById('quiz-expl').className='quiz-expl';
+  document.getElementById('quiz-expl').innerHTML='';
+  document.getElementById('quiz-next').className='quiz-next';
+  buildPips();
+}
+
+function pick(chosen){
+  if(qAnswered)return;
+  qAnswered=true;
+  const q=QS[qCur];
+  if(chosen===q.ans)qScore++;
+  document.getElementById('quiz-score').textContent=`Score: ${qScore} / ${QS.length}`;
+  document.querySelectorAll('.q-btn').forEach((b,j)=>{
+    b.disabled=true;
+    if(j===q.ans)b.classList.add('correct');
+    else if(j===chosen)b.classList.add('wrong');
+  });
+  const expl=document.getElementById('quiz-expl');
+  expl.innerHTML=q.expl; expl.classList.add('show');
+  document.getElementById('quiz-next').classList.add('show');
+}
+
+document.getElementById('quiz-next').addEventListener('click',()=>{
+  qCur=(qCur+1)%QS.length;
+  if(qCur===0)qScore=0;
+  renderQ(qCur);
+});
+
+renderQ(0);
+</script>
+</body>
+</html>
